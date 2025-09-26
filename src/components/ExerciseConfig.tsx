@@ -11,7 +11,7 @@ export default function ExerciseConfig({ text, onTextChange }: Props) {
     };
 
     return (
-        <section className="card">
+        <section className="card card--config">
             <header className="card__header">
                 <h3>متن تمرین</h3>
                 <p>جمله یا پاراگراف موردنظر را بنویس تا همان متن را در تمرین تایپ کنی.</p>

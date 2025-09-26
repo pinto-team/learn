@@ -106,7 +106,7 @@ export default function TypingExercise({ targetText, voice }: Props) {
 
                 <input
                     type="text"
-                    className="input-box exercise-input__field"
+                    className="exercise-input__field"
                     value={input}
                     onChange={handleChange}
                     placeholder=""
