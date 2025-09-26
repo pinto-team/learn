@@ -1,109 +1,105 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSpeech } from "../hooks/useSpeech";
 
 type Props = {
     targetText: string;
     voice: SpeechSynthesisVoice | null;
-    mode: "char" | "word"; // 👈 حالت تمرین
 };
 
-export default function TypingExercise({ targetText, voice, mode }: Props) {
+export default function TypingExercise({ targetText, voice }: Props) {
     const [input, setInput] = useState("");
+    const [lastSpokenIndex, setLastSpokenIndex] = useState(-1);
+    const [hasSpokenSentence, setHasSpokenSentence] = useState(false);
     const { speak } = useSpeech(voice);
 
-    const targetWords = targetText.split(" "); // متن تمرینی به کلمات
+    const targetWords = useMemo(
+        () =>
+            targetText
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean),
+        [targetText]
+    );
+
+    useEffect(() => {
+        setInput("");
+        setLastSpokenIndex(-1);
+        setHasSpokenSentence(false);
+    }, [targetText]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        if (val.length <= targetText.length) {
-            setInput(val);
+        const value = e.target.value;
+        if (value.length > targetText.length + 10) return;
 
-            const inputWords = val.split(" ");
-            const currentWordIndex = inputWords.length - 1; // کلمه فعلی
-            const currentInputWord = inputWords[currentWordIndex] || "";
-            const expectedWord = targetWords[currentWordIndex] || "";
+        setInput(value);
 
-            if (
-                currentInputWord.length > 0 &&
-                expectedWord.toLowerCase().startsWith(currentInputWord.toLowerCase())
-            ) {
-                if (mode === "char") {
-                    // حالت هجّی: بخش فعلی رو بخون
-                    if (currentInputWord.length < expectedWord.length) {
-                        let partToSpeak =
-                            currentInputWord.length === 1
-                                ? expectedWord.slice(0, 2) // اگه فقط یه حرف تایپ شده → دو حرف اول
-                                : expectedWord.slice(0, currentInputWord.length);
-                        speak(partToSpeak);
-                    }
+        const inputWords = value.trim().split(/\s+/);
+        const currentWordIndex = inputWords.length - 1;
+        const currentInputWord = inputWords[currentWordIndex] || "";
+        const expectedWord = targetWords[currentWordIndex] || "";
 
-                    // وقتی کل کلمه کامل شد
-                    if (
-                        currentInputWord.length === expectedWord.length &&
-                        currentInputWord.toLowerCase() === expectedWord.toLowerCase()
-                    ) {
-                        setTimeout(() => speak(expectedWord), 300);
-                    }
-                }
+        const isWordComplete =
+            currentInputWord.length > 0 &&
+            currentInputWord.localeCompare(expectedWord, undefined, { sensitivity: "base" }) === 0;
 
-                if (mode === "word") {
-                    // فقط وقتی کل کلمه کامل شد
-                    if (
-                        currentInputWord.length === expectedWord.length &&
-                        currentInputWord.toLowerCase() === expectedWord.toLowerCase()
-                    ) {
-                        setTimeout(() => speak(expectedWord), 300);
-                    }
-                }
-            }
+        if (isWordComplete && currentWordIndex > lastSpokenIndex) {
+            setLastSpokenIndex(currentWordIndex);
+            setTimeout(() => speak(expectedWord), 200);
+        }
+
+        const isSentenceComplete =
+            value.trim().localeCompare(targetText.trim(), undefined, { sensitivity: "base" }) === 0;
+
+        if (isSentenceComplete && !hasSpokenSentence) {
+            setHasSpokenSentence(true);
+            setTimeout(() => speak(targetText), 250);
+        } else if (!isSentenceComplete && hasSpokenSentence) {
+            setHasSpokenSentence(false);
         }
     };
 
-    // رنگ‌بندی متن
-    const colored = targetText.split("").map((c, i) => {
-        if (i < input.length) {
+    const characters = useMemo(() => {
+        return targetText.split("").map((char, index) => {
+            let state: "pending" | "correct" | "incorrect" = "pending";
+
+            if (index < input.length) {
+                state =
+                    char.localeCompare(input[index] ?? "", undefined, { sensitivity: "base" }) === 0
+                        ? "correct"
+                        : "incorrect";
+            }
+
             return (
-                <span
-                    key={i}
-                    style={{
-                        color:
-                            c.toLowerCase() === input[i]?.toLowerCase() ? "green" : "red",
-                    }}
-                >
-          {c}
-        </span>
+                <span key={`${char}-${index}`} className={`exercise-char exercise-char--${state}`}>
+                    {char === " " ? "\u00B7" : char}
+                </span>
             );
-        }
-        return (
-            <span key={i} style={{ opacity: 0.3 }}>
-        {c}
-      </span>
-        );
-    });
+        });
+    }, [input, targetText]);
 
     return (
-        <div style={{ marginTop: "2rem" }}>
-            <h3>تمرین تایپ</h3>
-            <p style={{ fontSize: "1.2rem", lineHeight: "2rem" }}>{colored}</p>
+        <section className="card">
+            <header className="card__header">
+                <h3>تمرین تایپ هوشمند</h3>
+                <p>هر کلمه را کامل و صحیح تایپ کن تا سیستم آن را با صدای طبیعی برایت بخواند.</p>
+            </header>
+
+            <div className="exercise-preview" aria-live="polite">
+                {characters}
+            </div>
 
             <input
                 type="text"
+                className="input-box"
                 value={input}
                 onChange={handleChange}
-                placeholder="شروع به تایپ کن..."
-                style={{
-                    width: "100%",
-                    padding: "0.5rem",
-                    fontSize: "1.1rem",
-                    marginTop: "1rem",
-                }}
+                placeholder="متن تمرین را تایپ کن..."
+                autoComplete="off"
             />
 
-            {input.toLowerCase() === targetText.toLowerCase() && (
-                <p style={{ color: "blue", marginTop: "1rem" }}>
-                    ✅ کل متن تمرین کامل شد!
-                </p>
+            {hasSpokenSentence && (
+                <p className="exercise-success">🎉 عالی! کل جمله را بدون خطا تایپ کردی.</p>
             )}
-        </div>
+        </section>
     );
 }

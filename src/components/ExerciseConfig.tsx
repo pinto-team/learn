@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
     lang: string;
@@ -10,71 +10,90 @@ type Props = {
 };
 
 export default function ExerciseConfig({
-                                           lang,
-                                           voice,
-                                           onLangChange,
-                                           onVoiceChange,
-                                           text,
-                                           onTextChange,
-                                       }: Props) {
+                                            lang,
+                                            voice,
+                                            onLangChange,
+                                            onVoiceChange,
+                                            text,
+                                            onTextChange,
+                                        }: Props) {
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
     useEffect(() => {
-        const updateVoices = () => {
-            setVoices(speechSynthesis.getVoices());
-        };
-        speechSynthesis.onvoiceschanged = updateVoices;
+        const synth = window.speechSynthesis;
+        const updateVoices = () => setVoices(synth.getVoices());
+
         updateVoices();
+        synth.addEventListener("voiceschanged", updateVoices);
+
+        return () => {
+            synth.removeEventListener("voiceschanged", updateVoices);
+        };
     }, []);
 
-    const filteredVoices = voices.filter((v) => v.lang.startsWith(lang));
+    const filteredVoices = useMemo(
+        () => voices.filter((v) => v.lang.startsWith(lang)),
+        [voices, lang]
+    );
+
+    useEffect(() => {
+        if (!filteredVoices.length) return;
+        const alreadySelected = filteredVoices.some((v) => v.name === voice?.name);
+        if (!alreadySelected) {
+            onVoiceChange(filteredVoices[0]);
+        }
+    }, [filteredVoices, onVoiceChange, voice]);
 
     return (
-        <div style={{ marginBottom: "1rem", textAlign: "left" }}>
-            {/* انتخاب زبان */}
-            <div style={{ marginBottom: "0.5rem" }}>
-                <label>زبان: </label>
-                <select
-                    value={lang}
-                    onChange={(e) => onLangChange(e.target.value)}
-                    style={{ padding: "0.3rem", marginLeft: "0.5rem" }}
-                >
-                    <option value="de-DE">آلمانی 🇩🇪</option>
-                    <option value="en-US">انگلیسی 🇬🇧</option>
-                    <option value="fr-FR">فرانسوی 🇫🇷</option>
-                </select>
+        <section className="card">
+            <header className="card__header">
+                <h3>تنظیمات تمرین</h3>
+                <p>زبان، صدای گوینده و متن تمرین خودت را انتخاب کن.</p>
+            </header>
+
+            <div className="form-grid">
+                <label className="field">
+                    <span className="field__label">زبان</span>
+                    <select
+                        className="field__control"
+                        value={lang}
+                        onChange={(e) => onLangChange(e.target.value)}
+                    >
+                        <option value="de-DE">آلمانی 🇩🇪</option>
+                        <option value="en-US">انگلیسی 🇺🇸</option>
+                        <option value="fr-FR">فرانسوی 🇫🇷</option>
+                    </select>
+                </label>
+
+                <label className="field">
+                    <span className="field__label">انتخاب صدا</span>
+                    <select
+                        className="field__control"
+                        value={voice?.name || ""}
+                        onChange={(e) => {
+                            const selected = filteredVoices.find((v) => v.name === e.target.value);
+                            if (selected) onVoiceChange(selected);
+                        }}
+                    >
+                        {filteredVoices.map((v) => (
+                            <option key={v.name} value={v.name}>
+                                {v.name}
+                            </option>
+                        ))}
+                    </select>
+                </label>
             </div>
 
-            {/* انتخاب صدا */}
-            <div style={{ marginBottom: "0.5rem" }}>
-                <label>صدا: </label>
-                <select
-                    value={voice?.name || ""}
-                    onChange={(e) => {
-                        const selected = filteredVoices.find((v) => v.name === e.target.value);
-                        if (selected) onVoiceChange(selected);
-                    }}
-                    style={{ padding: "0.3rem", marginLeft: "0.5rem", minWidth: "220px" }}
-                >
-                    {filteredVoices.map((v, i) => (
-                        <option key={i} value={v.name}>
-                            {v.name}
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            {/* متن تمرینی */}
-            <div>
-                <label>متن تمرین: </label>
+            <label className="field">
+                <span className="field__label">متن تمرین</span>
                 <textarea
+                    className="field__control field__control--textarea"
                     value={text}
                     onChange={(e) => onTextChange(e.target.value)}
                     rows={3}
-                    style={{ width: "100%", padding: "0.5rem", marginTop: "0.3rem" }}
-                    placeholder="اینجا متن تمرین رو بنویس..."
+                    placeholder="اینجا جمله یا پاراگراف مورد نظر را بنویس..."
                 />
-            </div>
-        </div>
+            </label>
+        </section>
     );
 }

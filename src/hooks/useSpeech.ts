@@ -1,26 +1,33 @@
 import { useCallback } from "react";
 
 type SpeakOptions = {
-    lang?: string;   // زبان پیش‌فرض: آلمانی
-    rate?: number;   // سرعت
-    pitch?: number;  // تن صدا
+    lang?: string;
+    rate?: number;
+    pitch?: number;
+    voice?: SpeechSynthesisVoice | null;
 };
 
-export function useSpeech(defaultLang?: any) {
+export function useSpeech(defaultVoice?: SpeechSynthesisVoice | null) {
     const speak = useCallback(
         (text: string, options: SpeakOptions = {}) => {
             if (!text.trim()) return;
 
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = options.lang || defaultLang;
+            const resolvedVoice = options.voice ?? defaultVoice ?? null;
+
+            if (resolvedVoice) {
+                utterance.voice = resolvedVoice;
+                utterance.lang = resolvedVoice.lang;
+            }
+
+            utterance.lang = options.lang || utterance.lang || "de-DE";
             utterance.rate = options.rate || 1;
             utterance.pitch = options.pitch || 1;
 
-            // اگر صداهای قبلی در صف بودن، همه رو کنسل می‌کنیم
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
         },
-        [defaultLang]
+        [defaultVoice]
     );
 
     return { speak };
