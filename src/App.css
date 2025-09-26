@@ -250,14 +250,11 @@
   position: absolute;
   inset: 0;
   padding: 0.85rem 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem;
   pointer-events: none;
   font-size: 1rem;
   line-height: 1.7;
   white-space: pre-wrap;
+  color: #1f2937;
 }
 
 .exercise-input__placeholder {
@@ -268,33 +265,32 @@
 .exercise-input__field {
   color: transparent;
   caret-color: #4338ca;
-  background: rgba(255, 255, 255, 0.9);
+  background: transparent;
 }
 
 .exercise-input__field:focus {
-  background: #ffffff;
+  background: transparent;
 }
 
 .exercise-input__char {
-  padding: 0.1rem 0.2rem;
-  border-radius: 8px;
-  transition: background 0.2s ease, color 0.2s ease;
+  display: inline;
+  transition: color 0.2s ease;
 }
 
 .exercise-input__char--pending {
-  color: #a1aecb;
+  color: #94a3b8;
 }
 
 .exercise-input__char--correct {
-  color: #047857;
-  background: rgba(16, 185, 129, 0.16);
-  font-weight: 600;
+  color: #1f2937;
 }
 
 .exercise-input__char--incorrect {
   color: #dc2626;
-  background: rgba(248, 113, 113, 0.18);
-  font-weight: 600;
+}
+
+.exercise-input__char--active {
+  color: #4338ca;
 }
 
 .exercise-success {

@@ -28,8 +28,10 @@ export default function InputBox({ voice, onWordComplete }: Props) {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         const trimmed = value.trimEnd();
+        const wasTrailingSpace = text.endsWith(" ");
+        const isAddingSpace = value.endsWith(" ") && !wasTrailingSpace;
 
-        if (value.endsWith(" ") && trimmed.length > text.trimEnd().length) {
+        if (isAddingSpace) {
             const completedWord = trimmed.split(/\s+/).pop();
             if (completedWord) {
                 speakWord(completedWord);
