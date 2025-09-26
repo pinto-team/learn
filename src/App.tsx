@@ -3,6 +3,7 @@ import InputBox from "./components/InputBox";
 import WordList from "./components/WordList";
 import ExerciseConfig from "./components/ExerciseConfig";
 import TypingExercise from "./components/TypingExercise";
+import VoiceLanguageControl from "./components/VoiceLanguageControl";
 import "./App.css";
 
 function App() {
@@ -17,27 +18,6 @@ function App() {
             setWords((prev) => [...prev, word]);
         }
     };
-
-    useEffect(() => {
-        const synth = window.speechSynthesis;
-        const selectVoiceForLang = () => {
-            const allVoices = synth.getVoices();
-            const candidates = allVoices.filter((item) => item.lang.startsWith(lang));
-            if (!candidates.length) return;
-
-            const alreadySelected = candidates.some((candidate) => candidate.name === voice?.name);
-            if (!alreadySelected) {
-                setVoice(candidates[0]);
-            }
-        };
-
-        selectVoiceForLang();
-        synth.addEventListener("voiceschanged", selectVoiceForLang);
-
-        return () => {
-            synth.removeEventListener("voiceschanged", selectVoiceForLang);
-        };
-    }, [lang, voice]);
 
     useEffect(() => {
         if (!exerciseMode) return;
@@ -60,6 +40,15 @@ function App() {
                     <p>{hintText}</p>
                 </header>
 
+                <div className="settings-row">
+                    <VoiceLanguageControl
+                        lang={lang}
+                        voice={voice}
+                        onLangChange={setLang}
+                        onVoiceChange={setVoice}
+                    />
+                </div>
+
                 <div className="mode-switcher" role="group" aria-label="انتخاب حالت تمرین">
                     <span className={`mode-switcher__label ${!exerciseMode ? "is-active" : ""}`}>
                         تمرین آزاد
@@ -79,14 +68,7 @@ function App() {
 
                 {exerciseMode ? (
                     <>
-                        <ExerciseConfig
-                            lang={lang}
-                            voice={voice}
-                            onLangChange={setLang}
-                            onVoiceChange={setVoice}
-                            text={exerciseText}
-                            onTextChange={setExerciseText}
-                        />
+                        <ExerciseConfig text={exerciseText} onTextChange={setExerciseText} />
                         <TypingExercise targetText={exerciseText} voice={voice} />
                     </>
                 ) : (
