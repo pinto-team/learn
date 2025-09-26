@@ -34,7 +34,7 @@ function App() {
 
     return (
         <div className="app-shell">
-            <main className="app-card">
+            <main className={`app-card ${exerciseMode ? "app-card--exercise" : ""}`}>
                 <header className="app-header">
                     <h1>🗣️ یادگیری زبان با تایپ</h1>
                     <p>{hintText}</p>
@@ -67,10 +67,14 @@ function App() {
                 </div>
 
                 {exerciseMode ? (
-                    <>
-                        <ExerciseConfig text={exerciseText} onTextChange={setExerciseText} />
-                        <TypingExercise targetText={exerciseText} voice={voice} />
-                    </>
+                    <div className="exercise-layout">
+                        <div className="exercise-layout__main">
+                            <TypingExercise targetText={exerciseText} voice={voice} />
+                        </div>
+                        <aside className="exercise-layout__sidebar" aria-label="تنظیمات متن تمرین">
+                            <ExerciseConfig text={exerciseText} onTextChange={setExerciseText} />
+                        </aside>
+                    </div>
                 ) : (
                     <section className="card">
                         <header className="card__header">

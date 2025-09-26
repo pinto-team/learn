@@ -59,6 +59,8 @@ export default function TypingExercise({ targetText, voice }: Props) {
     };
 
     const characters = useMemo(() => {
+        const activeIndex = input.length < targetText.length ? input.length : -1;
+
         return targetText.split("").map((char, index) => {
             let state: "pending" | "correct" | "incorrect" = "pending";
 
@@ -69,8 +71,17 @@ export default function TypingExercise({ targetText, voice }: Props) {
                         : "incorrect";
             }
 
+            const isActive = index === activeIndex;
+            const className = [
+                "exercise-input__char",
+                `exercise-input__char--${state}`,
+                isActive ? "exercise-input__char--active" : "",
+            ]
+                .filter(Boolean)
+                .join(" ");
+
             return (
-                <span key={`${char}-${index}`} className={`exercise-input__char exercise-input__char--${state}`}>
+                <span key={`${char}-${index}`} className={className}>
                     {char === " " ? "\u00A0" : char}
                 </span>
             );
@@ -95,7 +106,7 @@ export default function TypingExercise({ targetText, voice }: Props) {
 
                 <input
                     type="text"
-                    className="input-box exercise-input__field"
+                    className="exercise-input__field"
                     value={input}
                     onChange={handleChange}
                     placeholder=""
