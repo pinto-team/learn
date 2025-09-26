@@ -70,32 +70,40 @@ export default function TypingExercise({ targetText, voice }: Props) {
             }
 
             return (
-                <span key={`${char}-${index}`} className={`exercise-char exercise-char--${state}`}>
-                    {char === " " ? "\u00B7" : char}
+                <span key={`${char}-${index}`} className={`exercise-input__char exercise-input__char--${state}`}>
+                    {char === " " ? "\u00A0" : char}
                 </span>
             );
         });
     }, [input, targetText]);
 
     return (
-        <section className="card">
+        <section className="card typing-card">
             <header className="card__header">
                 <h3>تمرین تایپ هوشمند</h3>
                 <p>هر کلمه را کامل و صحیح تایپ کن تا سیستم آن را با صدای طبیعی برایت بخواند.</p>
             </header>
 
-            <div className="exercise-preview" aria-live="polite">
-                {characters}
-            </div>
+            <div className="exercise-input" aria-live="polite">
+                <div className="exercise-input__overlay" aria-hidden="true">
+                    {targetText ? (
+                        characters
+                    ) : (
+                        <span className="exercise-input__placeholder">متن تمرین را اینجا تایپ کن...</span>
+                    )}
+                </div>
 
-            <input
-                type="text"
-                className="input-box"
-                value={input}
-                onChange={handleChange}
-                placeholder="متن تمرین را تایپ کن..."
-                autoComplete="off"
-            />
+                <input
+                    type="text"
+                    className="input-box exercise-input__field"
+                    value={input}
+                    onChange={handleChange}
+                    placeholder=""
+                    autoComplete="off"
+                    aria-label="محل تایپ متن تمرینی"
+                    spellCheck={false}
+                />
+            </div>
 
             {hasSpokenSentence && (
                 <p className="exercise-success">🎉 عالی! کل جمله را بدون خطا تایپ کردی.</p>

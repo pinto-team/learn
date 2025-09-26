@@ -4,24 +4,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.5rem 4rem;
+  padding: 2.5rem 1.25rem 3rem;
   background:
     radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.18), transparent 60%),
     radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.22), transparent 55%),
     radial-gradient(circle at 20% 90%, rgba(168, 85, 247, 0.18), transparent 50%),
     #e2e8f0;
+  overflow-x: hidden;
 }
 
 .app-card {
-  width: min(960px, 100%);
-  background: rgba(255, 255, 255, 0.92);
-  border-radius: 28px;
-  padding: 2.75rem 3rem;
-  box-shadow: 0 45px 90px -45px rgba(15, 23, 42, 0.35);
-  backdrop-filter: blur(8px);
+  width: min(860px, 100%);
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 24px;
+  padding: 2.2rem 2.4rem;
+  box-shadow: 0 36px 70px -46px rgba(15, 23, 42, 0.32);
+  backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 1.5rem;
 }
 
 .app-header {
@@ -30,7 +31,7 @@
 
 .app-header h1 {
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 2.15rem;
   font-weight: 700;
   color: #1f2937;
 }
@@ -38,8 +39,8 @@
 .app-header p {
   margin: 0.85rem auto 0;
   max-width: 640px;
-  font-size: 1.05rem;
-  line-height: 1.9;
+  font-size: 1rem;
+  line-height: 1.85;
   color: #475569;
 }
 
@@ -135,7 +136,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.25rem;
+  gap: 1rem;
   font-weight: 600;
   color: #94a3b8;
 }
@@ -195,13 +196,13 @@
 
 .card {
   background: rgba(248, 250, 252, 0.9);
-  border-radius: 22px;
-  padding: 1.9rem 2rem;
+  border-radius: 20px;
+  padding: 1.65rem 1.8rem;
   border: 1px solid rgba(148, 163, 184, 0.18);
-  box-shadow: 0 30px 80px -60px rgba(15, 23, 42, 0.45);
+  box-shadow: 0 26px 70px -60px rgba(15, 23, 42, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.1rem;
 }
 
 .card__header h3 {
@@ -223,9 +224,9 @@
   border: 1px solid rgba(99, 102, 241, 0.28);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.95);
-  padding: 0.95rem 1.15rem;
-  font-size: 1.05rem;
-  line-height: 1.8;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  line-height: 1.7;
   transition: border 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 }
 
@@ -236,43 +237,64 @@
   background: #ffffff;
 }
 
-.exercise-preview {
+
+.typing-card {
+  gap: 1rem;
+}
+
+.exercise-input {
+  position: relative;
+}
+
+.exercise-input__overlay {
+  position: absolute;
+  inset: 0;
+  padding: 0.85rem 1rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
-  padding: 1.1rem 1.25rem;
-  min-height: 4.5rem;
-  border-radius: 18px;
-  background: linear-gradient(130deg, rgba(239, 246, 255, 0.95), rgba(224, 231, 255, 0.8));
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #334155;
+  align-items: center;
+  gap: 0.25rem;
+  pointer-events: none;
+  font-size: 1rem;
+  line-height: 1.7;
+  white-space: pre-wrap;
 }
 
-.exercise-char {
-  padding: 0.35rem 0.5rem;
-  border-radius: 12px;
-  min-width: 1.2rem;
-  text-align: center;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+.exercise-input__placeholder {
+  color: #cbd5f5;
+  font-weight: 500;
 }
 
-.exercise-char--pending {
-  color: #94a3b8;
-  background: rgba(148, 163, 184, 0.14);
+.exercise-input__field {
+  color: transparent;
+  caret-color: #4338ca;
+  background: rgba(255, 255, 255, 0.9);
 }
 
-.exercise-char--correct {
+.exercise-input__field:focus {
+  background: #ffffff;
+}
+
+.exercise-input__char {
+  padding: 0.1rem 0.2rem;
+  border-radius: 8px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.exercise-input__char--pending {
+  color: #a1aecb;
+}
+
+.exercise-input__char--correct {
   color: #047857;
-  background: rgba(16, 185, 129, 0.18);
-  box-shadow: 0 12px 30px -20px rgba(16, 185, 129, 0.65);
+  background: rgba(16, 185, 129, 0.16);
+  font-weight: 600;
 }
 
-.exercise-char--incorrect {
+.exercise-input__char--incorrect {
   color: #dc2626;
-  background: rgba(248, 113, 113, 0.22);
-  box-shadow: 0 12px 30px -22px rgba(248, 113, 113, 0.7);
+  background: rgba(248, 113, 113, 0.18);
+  font-weight: 600;
 }
 
 .exercise-success {
